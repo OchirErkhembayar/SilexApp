@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block main %}
+    <div class="text-center">
+        <h3>Your Cart</h3>
+        {% if have_cars %}
+            <div class="row d-flex justify-content-center" style="width: fit-content; margin: 0 auto;">
+                {% for cart_item in cart_items %}
+                    <div class="card mx-3 col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2"
+                         style="width: 18rem; margin: 1rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ cart_item.car.name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ cart_item.car.brand }} {{ cart_item.car.model }}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Quantity: {{ cart_item.quantity }}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Price: £{{ cart_item.price }}</h6>
+                            <div class="d-flex justify-content-around">
+                                <form method="post" action="/cart/delete-from-cart">
+                                    <input type="hidden" name="id" id="id" value="{{ car.cart_item_id }}"/>
+                                    <input class="text-primary text-decoration-underline" type="submit"
+                                           style="border: none; background: transparent;" value="Delete">
+                                </form>
+                                <a href="/cars/{{ car.car_id }}" class="card-link">More info</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <form method="post" action="/orders/create-order">
+                <button type="submit" class="mb-3 btn btn-success btn-sm">Buy Now</button>
+            </form>
+        {% else %}
+            <h4>Your cart is empty</h4>
+            <a href="/cars" class="btn btn-success">Check out cars</a>
+        {% endif %}
+    </div>
+{% endblock %}
