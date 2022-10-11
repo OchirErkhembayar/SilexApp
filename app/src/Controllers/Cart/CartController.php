@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Cart;
 
 use App\Classes\Cart\Cart;
+use App\Classes\Cart\CartItem;
 use App\Classes\Cart\CartRepository;
 
 class CartController
@@ -14,19 +15,22 @@ class CartController
         return $cartRepository->getCart();
     }
 
-    public function getCartItems($cart_id): array
+    /**
+     * @return array<CartItem>
+     * */
+    public function getCartItems(int $cart_id): array
     {
         $cartRepository = new CartRepository();
         return $cartRepository->getCartItems($cart_id);
     }
 
-    public function addToCart($car_id, $cart_id): void
+    public function addToCart(int $car_id, int $cart_id): void
     {
         $cartRepository = new CartRepository();
         $cartRepository->addToCart($car_id, $cart_id);
     }
 
-    public function removeFromCart($cart_item_id): void
+    public function removeFromCart(int $cart_item_id): void
     {
         $cartRepository = new CartRepository();
         $cartRepository->removeFromCart($cart_item_id);

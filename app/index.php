@@ -64,9 +64,8 @@ $app->get('/cars', function () use ($app) {
 
 $app->post('/cars/add-car', function (Request $request) use ($app) {
     try {
-        $params = $request->request;
         $carController = new CarController();
-        $carController->save($params);
+        $carController->save($request);
         return $app->redirect($app["url_generator"]->generate("cars"));
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
@@ -78,7 +77,8 @@ $app->post('/cars/delete-car', function (Request $request) use ($app) {
     try {
         $params = $request->request;
         $carController = new CarController();
-        $carController->delete($params);
+        $id = $params->get("id");
+        $carController->delete((int)$id);
         return $app->redirect($app["url_generator"]->generate("cars"));
     } catch (Exception $e) {
         echo $e->getMessage();
@@ -90,7 +90,7 @@ $app->post('/cars/delete-car', function (Request $request) use ($app) {
 $app->get('/cars/{id}', function (Request $request, $id) use ($app) {
     try {
         $carController = new CarController();
-        $car = $carController->getOne($id);
+        $car = $carController->getOne((int)$id);
         return $app['twig']->render('cars/show.html.twig', [
             'car' => $car
         ]);
@@ -120,7 +120,7 @@ $app->post('/cart/add-to-cart', function (Request $request) use ($app) {
         $params = $request->request;
         $cartController = new CartController();
         $cart = $cartController->getCart();
-        $cartController->addToCart($params->get("id"), $cart->cart_id);
+        $cartController->addToCart((int)$params->get("id"), (int)$cart->cart_id);
         return $app->redirect($app["url_generator"]->generate("cart"));
     } catch (Exception $e) {
         echo $e->getMessage();
@@ -133,7 +133,7 @@ $app->post('/cart/delete-from-cart', function (Request $request) use ($app) {
     try {
         $params = $request->request;
         $cartController = new CartController();
-        $cartController->removeFromCart($params->get("id"));
+        $cartController->removeFromCart((int)$params->get("id"));
         return $app->redirect($app["url_generator"]->generate("cart"));
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
@@ -157,7 +157,7 @@ $app->get('/orders', function () use ($app) {
 $app->get('/orders/{id}', function (Request $request, $id) use ($app) {
     try {
         $orderController = new OrderController();
-        $orderDetails = $orderController->getOrder($id);
+        $orderDetails = $orderController->getOrder((int)$id);
         $order_items = $orderDetails["order_items"];
         $order = $orderDetails["order"];
         return $app['twig']->render('orders/order.html.twig', [

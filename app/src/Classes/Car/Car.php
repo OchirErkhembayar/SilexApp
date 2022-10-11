@@ -12,13 +12,21 @@ class Car
     {
     }
 
-    public static function oneFromDatabaseFields($fields): Car
+    /**
+     * @param array<string,float|string|int> $fields
+     * */
+    public static function oneFromDatabaseFields(array $fields): Car
     {
-        return new Car(new Engine($fields["horsepower"], $fields["engine_id"]), $fields["name"], $fields["model"],
-            $fields["brand"], $fields["url"], $fields["price"], $fields["car_id"]);
+        return new Car(new Engine((int)$fields["horsepower"], (int)$fields["engine_id"]), (string)$fields["name"],
+            (string)$fields["model"],
+            (string)$fields["brand"], (string)$fields["url"], (float)$fields["price"], (int)$fields["car_id"]);
     }
 
-    public static function manyFromDatabaseFields($fields): array
+    /**
+     * @return array<Car>
+     * @param array<array<string,float|string|int>> $fields
+     * */
+    public static function manyFromDatabaseFields(array $fields): array
     {
         return \array_map('self::oneFromDatabaseFields', $fields);
     }

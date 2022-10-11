@@ -15,11 +15,11 @@
                             <h6 class="card-subtitle mb-2 text-muted">Price: £{{ cart_item.price }}</h6>
                             <div class="d-flex justify-content-around">
                                 <form method="post" action="/cart/delete-from-cart">
-                                    <input type="hidden" name="id" id="id" value="{{ car.cart_item_id }}"/>
+                                    <input type="hidden" name="id" id="id" value="{{ cart_item.cart_item_id }}"/>
                                     <input class="text-primary text-decoration-underline" type="submit"
                                            style="border: none; background: transparent;" value="Delete">
                                 </form>
-                                <a href="/cars/{{ car.car_id }}" class="card-link">More info</a>
+                                <a href="/cars/{{ cart_item.car.car_id }}" class="card-link">More info</a>
                             </div>
                         </div>
                     </div>

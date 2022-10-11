@@ -21,14 +21,19 @@ class CartRepository
 
     public function getCart(): Cart
     {
-        $sql = "SELECT * FROM carts WHERE cart_id=1";
-        $statement = $this->conn->prepare($sql);
-        $statement->execute([]);
+        $sql = "SELECT * FROM carts";
+        $statement = $this->conn->query($sql);
+        if (gettype($statement) === "boolean") {
+            throw new \PDOException("Failed to fetch cart.");
+        }
         $fields = $statement->fetchAll()[0];
         return Cart::oneFromDatabaseFields($fields);
     }
 
-    public function getCartItems($cart_id): array
+    /**
+     * @return array<CartItem>
+     * */
+    public function getCartItems(int $cart_id): array
     {
         $sql = "SELECT * FROM cart_items cartitems 
                 INNER JOIN cars car ON cartitems.car_id=car.car_id 
@@ -41,7 +46,7 @@ class CartRepository
         return CartItem::manyFromDatabaseFields($fields);
     }
 
-    public function addToCart($car_id, $cart_id): void
+    public function addToCart(int $car_id, int $cart_id): void
     {
         $sql = "SELECT * FROM cart_items WHERE cart_id=:cart_id AND car_id=:car_id";
         $statement = $this->conn->prepare($sql);
@@ -69,7 +74,7 @@ class CartRepository
         ]);
     }
 
-    public function removeFromCart($cart_item_id): void
+    public function removeFromCart(int $cart_item_id): void
     {
         $sql = "DELETE FROM cart_items WHERE cart_item_id=:cart_item_id";
         $statement = $this->conn->prepare($sql);

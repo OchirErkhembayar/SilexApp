@@ -19,17 +19,26 @@ class OrderRepository
         $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
+    /**
+     * @return array<Order>
+     * */
     public function getOrders(): array
     {
         $sql = "SELECT * FROM orders
                 JOIN order_items ON orders.order_id=order_items.order_id
                 JOIN cars ON cars.car_id=order_items.car_id";
-        $statement = $this->conn->query($sql);
-        $fieldsArray = $statement->fetchAll(PDO::FETCH_GROUP);
+        $result = $statement = $this->conn->query($sql);
+        if (gettype($result) === "boolean") {
+            throw new \PDOException("Failed to fetch orders.");
+        }
+        $fieldsArray = $result->fetchAll(PDO::FETCH_GROUP);
         return Order::manyFromDatabaseFields($fieldsArray);
     }
 
-    public function getOrder($id): array
+    /**
+     * @return array{order:Order,order_items:array<OrderItem>}
+     * */
+    public function getOrder(int $id): array
     {
         $sql = "SELECT * FROM orders
                 INNER JOIN order_items ON order_items.order_id=orders.order_id

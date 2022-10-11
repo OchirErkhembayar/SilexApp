@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Classes\Car;
 
 use PDO;
+use Symfony\Component\HttpFoundation\Request;
 
 class CarRepository
 {
@@ -19,14 +20,21 @@ class CarRepository
         $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
+    /**
+     * @return array<Car>
+     * */
     function getCars(): array
     {
         $sql = "SELECT * FROM cars INNER JOIN engines ON cars.car_id=engines.car_id";
-        $fields = $this->conn->query($sql)->fetchAll();
+        $result = $this->conn->query($sql);
+        if (!$result) {
+            throw new \PDOException("Failed to fetch cars.");
+        }
+        $fields = $result->fetchAll();
         return Car::manyFromDatabaseFields($fields);
     }
 
-    function getOne($id): Car
+    function getOne(int $id): Car
     {
         $sql = "SELECT * FROM cars c INNER JOIN engines e ON e.car_id=c.car_id WHERE c.car_id=:id";
         $statement = $this->conn->prepare($sql);
@@ -37,8 +45,9 @@ class CarRepository
         return Car::oneFromDatabaseFields($fields);
     }
 
-    function save($params): void
+    function save(Request $request): void
     {
+        $params = $request->request;
         $car_sql = "INSERT INTO cars (name, brand, model, url, price) VALUES (:name, :brand, :model, :url, :price)";
         $car_statement = $this->conn->prepare($car_sql);
         $car_statement->execute([
@@ -57,18 +66,7 @@ class CarRepository
         ]);
     }
 
-    public function getCarsById($id_array): void
-    {
-        $sql = "SELECT * FROM cars WHERE car_id IN (:id_array)";
-        $statement = $this->conn->prepare($sql);
-        $statement->execute([
-            ':id_array' => $id_array
-        ]);
-        $fields = $statement->fetchAll();
-        print_r($fields);
-    }
-
-    public function delete($id): void
+    public function delete(int $id): void
     {
         $car_sql = "DELETE FROM cars WHERE car_id=:car_id";
         $car_statement = $this->conn->prepare($car_sql);

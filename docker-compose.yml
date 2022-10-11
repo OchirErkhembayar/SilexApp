@@ -35,6 +35,8 @@ services:
     # (this is just an example, not intended to be a production configuration)
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    volumes:
+      - ~/DataGripProjects/learning_php/carsApp:/var/lib/mysql
     ports:
       - "3306:3306"
     environment:
