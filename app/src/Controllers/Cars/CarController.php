@@ -5,7 +5,6 @@ namespace App\Controllers\Cars;
 
 use App\Classes\Car\Car;
 use App\Classes\Car\CarRepository;
-use Symfony\Component\HttpFoundation\Request;
 
 class CarController
 {
@@ -29,9 +28,13 @@ class CarController
         return $this->carRepository->getOne($id);
     }
 
-    public function save(Request $request): void
+    /**
+     * @param array<string,string|int|float> $params
+     * @return void
+     */
+    public function save(array $params): void
     {
-        $this->carRepository->save($request);
+        $this->carRepository->save($params);
     }
 
     public function delete(int $id): void

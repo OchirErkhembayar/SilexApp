@@ -41,23 +41,22 @@ class CarRepository
         return Car::oneFromDatabaseFields($fields);
     }
 
-    function save(Request $request): void
+    function save(array $params): void
     {
-        $params = $request->request;
         $car_sql = "INSERT INTO cars (name, brand, model, url, price) VALUES (:name, :brand, :model, :url, :price)";
         $car_statement = $this->conn->prepare($car_sql);
         $car_statement->execute([
-            ':name' => $params->get("name"),
-            ':brand' => $params->get("brand"),
-            ':model' => $params->get("model"),
-            ':url' => $params->get("url"),
-            ':price' =>$params->get("price")
+            'name' => $params["name"],
+            'brand' => $params["brand"],
+            'model' => $params["model"],
+            'url' => $params["url"],
+            'price' => $params["price"]
         ]);
         $car_id = $this->conn->lastInsertId();
         $engine_sql = "INSERT INTO engines (horsepower, car_id) VALUES (:horsepower, :car_id)";
         $engine_statement = $this->conn->prepare($engine_sql);
         $engine_statement->execute([
-            ':horsepower' => $params->get("horsepower"),
+            ':horsepower' => $params["horsepower"],
             ':car_id' => $car_id
         ]);
     }

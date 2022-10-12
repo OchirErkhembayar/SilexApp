@@ -74,7 +74,16 @@ $app->get('/cars', function () use ($app) {
 
 $app->post('/cars/add-car', function (Request $request) use ($app) {
     try {
-        $app['app.controller.car']->save($request);
+        $params = $request->request;
+        $paramsArray = [
+            "name" => $params->get("name"),
+            "brand" => $params->get("brand"),
+            "model" => $params->get("model"),
+            "url" => $params->get("url"),
+            "price" =>$params->get("price"),
+            "horsepower" =>$params->get("horsepower")
+        ];
+        $app['app.controller.car']->save($paramsArray);
         return $app->redirect($app["url_generator"]->generate("cars"));
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
