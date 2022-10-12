@@ -2,7 +2,13 @@
 <project version="4">
   <component name="DdlMappings">
     <mapping uuid="a6845ec6-f03a-4345-b812-b716118336f7" name="DDL Mapping">
-      <data-sources db="8e298fa3-c12b-437c-a96d-1991545b55bc" ddl="cf316d8c-9bac-4c75-8006-d186c00ad3fc" />
+      <data-sources db="fc1a219e-c0fa-450e-ba00-b565508992c5" ddl="a9b02b88-2dbb-4a64-824e-c21142e16c28" />
+      <scope>
+        <node kind="schema" qname="silexCarsTest" />
+      </scope>
+    </mapping>
+    <mapping uuid="de82a8cf-a8ad-491c-92bb-3c8514002cc4" name="DDL Mapping [2]">
+      <data-sources db="1cf1f684-e92f-46c0-befa-591f9db13490" ddl="a9b02b88-2dbb-4a64-824e-c21142e16c28" />
       <scope>
         <node kind="schema" qname="silexCars" />
       </scope>
@@ -12,12 +18,13 @@
     <option name="dataSources">
       <list>
         <State>
-          <option name="id" value="cf316d8c-9bac-4c75-8006-d186c00ad3fc" />
+          <option name="id" value="a9b02b88-2dbb-4a64-824e-c21142e16c28" />
           <option name="name" value="silexCars@localhost (DDL)" />
           <option name="languageId" value="MySQL" />
           <option name="urls">
             <array>
-              <option value="file://$PROJECT_DIR$/../DataGripProjects/learning_php" />
+              <option value="file://$PROJECT_DIR$/app/database/carsApp/silexCars" />
+              <option value="file://$PROJECT_DIR$/app/database/carsApp/silexCarsTest" />
             </array>
           </option>
         </State>

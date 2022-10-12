@@ -9,30 +9,33 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CarController
 {
+    private CarRepository $carRepository;
+
+    public function __construct(CarRepository $carRepository)
+    {
+        $this->carRepository = $carRepository;
+    }
+
     /**
      * @return array<Car>
      * */
     public function getAll(): array
     {
-        $carRepository = new CarRepository();
-        return $carRepository->getCars();
+        return $this->carRepository->getCars();
     }
 
     public function getOne(int $id): Car
     {
-        $carRepository = new CarRepository();
-        return $carRepository->getOne($id);
+        return $this->carRepository->getOne($id);
     }
 
     public function save(Request $request): void
     {
-        $carRepository = new CarRepository();
-        $carRepository->save($request);
+        $this->carRepository->save($request);
     }
 
     public function delete(int $id): void
     {
-        $carRepository = new CarRepository();
-        $carRepository->delete($id);
+        $this->carRepository->delete($id);
     }
 }

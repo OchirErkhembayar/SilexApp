@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+use App\Classes\Car\CarRepository;
+use App\Classes\Cart\CartRepository;
+use App\Classes\Database\DatabaseConnection;
+use App\Classes\Order\OrderRepository;
 use App\Controllers\Cars\CarController;
 use App\Controllers\Cart\CartController;
 use App\Controllers\Orders\OrderController;
@@ -15,6 +19,14 @@ $app = new Application();
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__ . '/src/Views',
 ));
+
+$app['app.database'] = fn($c) => new DatabaseConnection("silexCars");
+$app['app.repository.car'] = fn($c) => new CarRepository($c['app.database']);
+$app['app.controller.car'] = fn($c) => new CarController($c['app.repository.car']);
+$app['app.repository.cart'] = fn($c) => new CartRepository($c['app.database']);
+$app['app.controller.cart'] = fn($c) => new CartController($c['app.repository.cart']);
+$app['app.repository.order'] = fn($c) => new OrderRepository($c['app.database']);
+$app['app.controller.order'] = fn($c) => new OrderController($c['app.repository.order']);
 
 $app->get('/', function () use ($app) {
     try {
@@ -50,10 +62,8 @@ $app->get('/cars/new-car', function () use ($app) {
 
 $app->get('/cars', function () use ($app) {
     try {
-        $carController = new CarController();
-        $cars = $carController->getAll();
         return $app['twig']->render('cars/index.html.twig', [
-            'cars' => $cars
+            'cars' => $app['app.controller.car']->getAll()
         ]);
     } catch (Exception $e) {
         echo $e->getMessage();
@@ -64,8 +74,7 @@ $app->get('/cars', function () use ($app) {
 
 $app->post('/cars/add-car', function (Request $request) use ($app) {
     try {
-        $carController = new CarController();
-        $carController->save($request);
+        $app['app.controller.car']->save($request);
         return $app->redirect($app["url_generator"]->generate("cars"));
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
@@ -76,9 +85,8 @@ $app->post('/cars/add-car', function (Request $request) use ($app) {
 $app->post('/cars/delete-car', function (Request $request) use ($app) {
     try {
         $params = $request->request;
-        $carController = new CarController();
         $id = $params->get("id");
-        $carController->delete((int)$id);
+        $app['app.controller.car']->delete((int)$id);
         return $app->redirect($app["url_generator"]->generate("cars"));
     } catch (Exception $e) {
         echo $e->getMessage();
@@ -89,10 +97,8 @@ $app->post('/cars/delete-car', function (Request $request) use ($app) {
 
 $app->get('/cars/{id}', function (Request $request, $id) use ($app) {
     try {
-        $carController = new CarController();
-        $car = $carController->getOne((int)$id);
         return $app['twig']->render('cars/show.html.twig', [
-            'car' => $car
+            'car' => $app['app.controller.car']->getOne((int)$id)
         ]);
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
@@ -102,9 +108,8 @@ $app->get('/cars/{id}', function (Request $request, $id) use ($app) {
 
 $app->get('/cart', function () use ($app) {
     try {
-        $cartController = new CartController();
-        $cart = $cartController->getCart();
-        $cartItems = $cartController->getCartItems($cart->cart_id);
+        $cart = $app['app.controller.cart']->getCart();
+        $cartItems = $app['app.controller.cart']->getCartItems($cart->cart_id);
         return $app['twig']->render('cart/cart.html.twig', [
             'cart_items' => $cartItems,
             'have_cars' => count($cartItems) > 0
@@ -118,9 +123,8 @@ $app->get('/cart', function () use ($app) {
 $app->post('/cart/add-to-cart', function (Request $request) use ($app) {
     try {
         $params = $request->request;
-        $cartController = new CartController();
-        $cart = $cartController->getCart();
-        $cartController->addToCart((int)$params->get("id"), (int)$cart->cart_id);
+        $cart = $app['app.controller.cart']->getCart();
+        $app['app.controller.cart']->addToCart((int)$params->get("id"), (int)$cart->cart_id);
         return $app->redirect($app["url_generator"]->generate("cart"));
     } catch (Exception $e) {
         echo $e->getMessage();
@@ -132,8 +136,7 @@ $app->post('/cart/add-to-cart', function (Request $request) use ($app) {
 $app->post('/cart/delete-from-cart', function (Request $request) use ($app) {
     try {
         $params = $request->request;
-        $cartController = new CartController();
-        $cartController->removeFromCart((int)$params->get("id"));
+        $app['app.controller.cart']->removeFromCart((int)$params->get("id"));
         return $app->redirect($app["url_generator"]->generate("cart"));
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
@@ -143,10 +146,8 @@ $app->post('/cart/delete-from-cart', function (Request $request) use ($app) {
 
 $app->get('/orders', function () use ($app) {
     try {
-        $orderController = new OrderController();
-        $orders = $orderController->getOrders();
         return $app['twig']->render('orders/orders.html.twig', [
-            'orders' => $orders
+            'orders' => $app['app.controller.order']->getOrders()
         ]);
     } catch (Exception $e) {
         $subRequest = Request::create('/500');
@@ -156,8 +157,7 @@ $app->get('/orders', function () use ($app) {
 
 $app->get('/orders/{id}', function (Request $request, $id) use ($app) {
     try {
-        $orderController = new OrderController();
-        $orderDetails = $orderController->getOrder((int)$id);
+        $orderDetails = $app['app.controller.order']->getOrder((int)$id);
         $order_items = $orderDetails["order_items"];
         $order = $orderDetails["order"];
         return $app['twig']->render('orders/order.html.twig', [
@@ -173,8 +173,7 @@ $app->get('/orders/{id}', function (Request $request, $id) use ($app) {
 
 $app->post('/orders/create-order', function () use ($app) {
     try {
-        $orderController = new OrderController();
-        $orderController->save();
+        $app['app.controller.order']->save();
         return $app->redirect($app["url_generator"]->generate("orders"));
     } catch (Exception $e) {
         $subRequest = Request::create('/500');

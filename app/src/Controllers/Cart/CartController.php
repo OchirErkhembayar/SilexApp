@@ -9,10 +9,16 @@ use App\Classes\Cart\CartRepository;
 
 class CartController
 {
+    private CartRepository $cartRepository;
+
+    public function __construct(CartRepository $cartRepository)
+    {
+        $this->cartRepository = $cartRepository;
+    }
+
     public function getCart(): Cart
     {
-        $cartRepository = new CartRepository();
-        return $cartRepository->getCart();
+        return $this->cartRepository->getCart();
     }
 
     /**
@@ -20,19 +26,16 @@ class CartController
      * */
     public function getCartItems(int $cart_id): array
     {
-        $cartRepository = new CartRepository();
-        return $cartRepository->getCartItems($cart_id);
+        return $this->cartRepository->getCartItems($cart_id);
     }
 
     public function addToCart(int $car_id, int $cart_id): void
     {
-        $cartRepository = new CartRepository();
-        $cartRepository->addToCart($car_id, $cart_id);
+        $this->cartRepository->addToCart($car_id, $cart_id);
     }
 
     public function removeFromCart(int $cart_item_id): void
     {
-        $cartRepository = new CartRepository();
-        $cartRepository->removeFromCart($cart_item_id);
+        $this->cartRepository->removeFromCart($cart_item_id);
     }
 }

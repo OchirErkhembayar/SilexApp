@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/1cf1f684-e92f-46c0-befa-591f9db13490/console_1.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/app/src/Classes/Car/CarRepository.php" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/app/src/Classes/Cart/CartRepository.php" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/app/src/Classes/Order/OrderRepository.php" dialect="MySQL" />
+    <file url="PROJECT" dialect="MySQL" />
   </component>
 </project>

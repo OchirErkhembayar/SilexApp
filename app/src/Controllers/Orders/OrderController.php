@@ -9,10 +9,16 @@ use App\Classes\Order\OrderRepository;
 
 class OrderController
 {
+    private OrderRepository $orderRepository;
+
+    public function __construct(OrderRepository $orderRepository)
+    {
+        $this->orderRepository = $orderRepository;
+    }
+
     public function save(): void
     {
-        $orderRepository = new OrderRepository();
-        $orderRepository->createOrder();
+        $this->orderRepository->createOrder();
     }
 
     /**
@@ -20,8 +26,7 @@ class OrderController
      * */
     public function getOrders(): array
     {
-        $orderRepository = new OrderRepository();
-        return $orderRepository->getOrders();
+        return $this->orderRepository->getOrders();
     }
 
     /**
@@ -29,7 +34,6 @@ class OrderController
      * */
     public function getOrder(int $id): array
     {
-        $orderRepository = new OrderRepository();
-        return $orderRepository->getOrder($id);
+        return $this->orderRepository->getOrder($id);
     }
 }

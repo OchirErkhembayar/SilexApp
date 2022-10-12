@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Classes\Car;
 
+use App\Classes\Database\DatabaseConnection;
 use PDO;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -10,14 +11,9 @@ class CarRepository
 {
     public PDO $conn;
 
-    public function __construct()
+    public function __construct(DatabaseConnection $conn)
     {
-        $host = "mysql";
-        $db_name = "silexCars";
-        $username = "root";
-        $password = "db_pass";
-        $this->conn = new PDO("mysql:host=$host;dbname=$db_name", $username, $password);
-        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->conn = $conn->conn;
     }
 
     /**
