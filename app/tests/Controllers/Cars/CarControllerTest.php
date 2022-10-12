@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Test\Controllers\Cars;
 
-use App\Classes\Car\Car;
 use App\Classes\Car\CarRepository;
 use App\Classes\Database\DatabaseConnection;
 use App\Controllers\Cars\CarController;
@@ -30,7 +29,11 @@ class CarControllerTest extends TestCase
     public function it_can_fetch_all_cars_from_the_database(): void
     {
         $cars = $this->carController->getAll();
-        $this->assertSame("object", \gettype($cars[0]));
+        $this->assertObjectHasAttribute("name", $cars[0]);
+        $this->assertObjectHasAttribute("brand", $cars[0]);
+        $this->assertObjectHasAttribute("model", $cars[0]);
+        $this->assertObjectHasAttribute("url", $cars[0]);
+        $this->assertObjectHasAttribute("engine", $cars[0]);
     }
 
     /**
@@ -38,7 +41,22 @@ class CarControllerTest extends TestCase
      */
     public function it_can_fetch_one_car_by_id(): void
     {
-        $car = Car::oneFromDatabaseFields($this->fields[0]);
-        $this->assertEquals($car, $this->carController->getOne(1));
+        $car = $this->carController->getOne($this->carController->getAll()[0]->car_id);
+        $this->assertObjectHasAttribute("name", $car);
+        $this->assertObjectHasAttribute("brand", $car);
+        $this->assertObjectHasAttribute("model", $car);
+        $this->assertObjectHasAttribute("url", $car);
+        $this->assertObjectHasAttribute("engine", $car);
+    }
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function it_can_save_a_car_to_the_database(): void
+    {
+       $params = $this->fields[0];
+       $result = $this->carController->save($params);
+       $this->assertTrue($result);
     }
 }

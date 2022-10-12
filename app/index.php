@@ -61,137 +61,83 @@ $app->get('/cars/new-car', function () use ($app) {
 });
 
 $app->get('/cars', function () use ($app) {
-    try {
-        return $app['twig']->render('cars/index.html.twig', [
-            'cars' => $app['app.controller.car']->getAll()
-        ]);
-    } catch (Exception $e) {
-        echo $e->getMessage();
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    return $app['twig']->render('cars/index.html.twig', [
+        'cars' => $app['app.controller.car']->getAll()
+    ]);
 })->bind("cars");
 
 $app->post('/cars/add-car', function (Request $request) use ($app) {
-    try {
-        $params = $request->request;
-        $paramsArray = [
-            "name" => $params->get("name"),
-            "brand" => $params->get("brand"),
-            "model" => $params->get("model"),
-            "url" => $params->get("url"),
-            "price" =>$params->get("price"),
-            "horsepower" =>$params->get("horsepower")
-        ];
-        $app['app.controller.car']->save($paramsArray);
-        return $app->redirect($app["url_generator"]->generate("cars"));
-    } catch (Exception $e) {
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $params = $request->request;
+    $paramsArray = [
+        "name" => $params->get("name"),
+        "brand" => $params->get("brand"),
+        "model" => $params->get("model"),
+        "url" => $params->get("url"),
+        "price" => $params->get("price"),
+        "horsepower" => $params->get("horsepower")
+    ];
+    $app['app.controller.car']->save($paramsArray);
+    return $app->redirect($app["url_generator"]->generate("cars"));
 });
 
 $app->post('/cars/delete-car', function (Request $request) use ($app) {
-    try {
-        $params = $request->request;
-        $id = $params->get("id");
-        $app['app.controller.car']->delete((int)$id);
-        return $app->redirect($app["url_generator"]->generate("cars"));
-    } catch (Exception $e) {
-        echo $e->getMessage();
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $params = $request->request;
+    $id = $params->get("id");
+    $app['app.controller.car']->delete((int)$id);
+    return $app->redirect($app["url_generator"]->generate("cars"));
 });
 
 $app->get('/cars/{id}', function (Request $request, $id) use ($app) {
-    try {
-        return $app['twig']->render('cars/show.html.twig', [
-            'car' => $app['app.controller.car']->getOne((int)$id)
-        ]);
-    } catch (Exception $e) {
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    return $app['twig']->render('cars/show.html.twig', [
+        'car' => $app['app.controller.car']->getOne((int)$id)
+    ]);
 });
 
 $app->get('/cart', function () use ($app) {
-    try {
-        $cart = $app['app.controller.cart']->getCart();
-        $cartItems = $app['app.controller.cart']->getCartItems($cart->cart_id);
-        return $app['twig']->render('cart/cart.html.twig', [
-            'cart_items' => $cartItems,
-            'have_cars' => count($cartItems) > 0
-        ]);
-    } catch (Exception $e) {
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $cart = $app['app.controller.cart']->getCart();
+    $cartItems = $app['app.controller.cart']->getCartItems($cart->cart_id);
+    return $app['twig']->render('cart/cart.html.twig', [
+        'cart_items' => $cartItems,
+        'have_cars' => count($cartItems) > 0
+    ]);
 })->bind('cart');
 
 $app->post('/cart/add-to-cart', function (Request $request) use ($app) {
-    try {
-        $params = $request->request;
-        $cart = $app['app.controller.cart']->getCart();
-        $app['app.controller.cart']->addToCart((int)$params->get("id"), (int)$cart->cart_id);
-        return $app->redirect($app["url_generator"]->generate("cart"));
-    } catch (Exception $e) {
-        echo $e->getMessage();
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $params = $request->request;
+    $cart = $app['app.controller.cart']->getCart();
+    $app['app.controller.cart']->addToCart((int)$params->get("id"), (int)$cart->cart_id);
+    return $app->redirect($app["url_generator"]->generate("cart"));
 });
 
 $app->post('/cart/delete-from-cart', function (Request $request) use ($app) {
-    try {
-        $params = $request->request;
-        $app['app.controller.cart']->removeFromCart((int)$params->get("id"));
-        return $app->redirect($app["url_generator"]->generate("cart"));
-    } catch (Exception $e) {
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $params = $request->request;
+    $app['app.controller.cart']->removeFromCart((int)$params->get("id"));
+    return $app->redirect($app["url_generator"]->generate("cart"));
 });
 
 $app->get('/orders', function () use ($app) {
-    try {
-        return $app['twig']->render('orders/orders.html.twig', [
-            'orders' => $app['app.controller.order']->getOrders()
-        ]);
-    } catch (Exception $e) {
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    return $app['twig']->render('orders/orders.html.twig', [
+        'orders' => $app['app.controller.order']->getOrders()
+    ]);
 })->bind('orders');
 
 $app->get('/orders/{id}', function (Request $request, $id) use ($app) {
-    try {
-        $orderDetails = $app['app.controller.order']->getOrder((int)$id);
-        $order_items = $orderDetails["order_items"];
-        $order = $orderDetails["order"];
-        return $app['twig']->render('orders/order.html.twig', [
-            'order_items' => $order_items,
-            'order' => $order
-        ]);
-    } catch (Exception $e) {
-        echo $e->getMessage();
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $orderDetails = $app['app.controller.order']->getOrder((int)$id);
+    $order_items = $orderDetails["order_items"];
+    $order = $orderDetails["order"];
+    return $app['twig']->render('orders/order.html.twig', [
+        'order_items' => $order_items,
+        'order' => $order
+    ]);
 });
 
 $app->post('/orders/create-order', function () use ($app) {
-    try {
-        $app['app.controller.order']->save();
-        return $app->redirect($app["url_generator"]->generate("orders"));
-    } catch (Exception $e) {
-        $subRequest = Request::create('/500');
-        return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
-    }
+    $app['app.controller.order']->save();
+    return $app->redirect($app["url_generator"]->generate("orders"));
 });
 
-$app->get('/500', function() use ($app) {
-    $app['twig']->render('/pages/500.html.twig', []);
-})->bind('500');
+$app->error(function ($e) use ($app) {
+    return $app['twig']->render('pages/500.html.twig', []);
+});
 
 $app->run();

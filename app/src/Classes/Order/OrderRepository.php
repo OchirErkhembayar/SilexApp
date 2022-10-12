@@ -20,15 +20,22 @@ class OrderRepository
      * */
     public function getOrders(): array
     {
-        $sql = "SELECT * FROM orders
-                JOIN order_items ON orders.order_id=order_items.order_id
-                JOIN cars ON cars.car_id=order_items.car_id";
-        $result = $statement = $this->conn->query($sql);
-        if (gettype($result) === "boolean") {
-            throw new \PDOException("Failed to fetch orders.");
+        $this->conn->beginTransaction();
+        try {
+            $sql = "SELECT * FROM orders
+                    JOIN order_items ON orders.order_id=order_items.order_id
+                    JOIN cars ON cars.car_id=order_items.car_id";
+            $result = $statement = $this->conn->query($sql);
+            if (gettype($result) === "boolean") {
+                throw new \PDOException("Failed to fetch orders.");
+            }
+            $fieldsArray = $result->fetchAll(PDO::FETCH_GROUP);
+            $this->conn->commit();
+            return Order::manyFromDatabaseFields($fieldsArray);
+        } catch (\Exception $e) {
+            $this->conn->rollBack();
+            throw new \PDOException("Database query failed.");
         }
-        $fieldsArray = $result->fetchAll(PDO::FETCH_GROUP);
-        return Order::manyFromDatabaseFields($fieldsArray);
     }
 
     /**
@@ -36,45 +43,59 @@ class OrderRepository
      * */
     public function getOrder(int $id): array
     {
-        $sql = "SELECT * FROM orders
-                INNER JOIN order_items ON order_items.order_id=orders.order_id
-                INNER JOIN cars ON cars.car_id=order_items.car_id
-                INNER JOIN engines ON cars.car_id=engines.car_id
-                WHERE orders.order_id = :id";
-        $statement = $this->conn->prepare($sql);
-        $statement->execute([
-            ':id' => $id
-        ]);
-        $fieldsArray = $statement->fetchAll();
-        $order = Order::oneFromDatabaseFields($fieldsArray);
-        $order_items = OrderItem::manyFromDatabaseFields($fieldsArray);
-        return [
-            "order" => $order,
-            "order_items" => $order_items
-        ];
-    }
-
-    public function createOrder(): void
-    {
-        $orderSql = "INSERT INTO orders () VALUES ()";
-        $statement = $this->conn->prepare($orderSql);
-        $statement->execute([]);
-        $order_id = $this->conn->lastInsertId();
-        $cartItemsSql = "SELECT * FROM cart_items";
-        $statement = $this->conn->prepare($cartItemsSql);
-        $statement->execute([]);
-        $fieldsArray = $statement->fetchAll();
-        foreach ($fieldsArray as $fields) {
-            $sql = "INSERT INTO order_items (order_id, car_id, quantity) VALUES (:order_id, :car_id, :quantity)";
+        $this->conn->beginTransaction();
+        try {
+            $sql = "SELECT * FROM orders
+                    INNER JOIN order_items ON order_items.order_id=orders.order_id
+                    INNER JOIN cars ON cars.car_id=order_items.car_id
+                    INNER JOIN engines ON cars.car_id=engines.car_id
+                    WHERE orders.order_id = :id";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
-                ':order_id' => $order_id,
-                ':car_id' => $fields["car_id"],
-                ':quantity' => $fields["quantity"]
+                ':id' => $id
             ]);
+            $fieldsArray = $statement->fetchAll();
+            $order = Order::oneFromDatabaseFields($fieldsArray);
+            $order_items = OrderItem::manyFromDatabaseFields($fieldsArray);
+            $this->conn->commit();
+            return [
+                "order" => $order,
+                "order_items" => $order_items
+            ];
+        } catch (\Exception $e) {
+            $this->conn->rollBack();
+            throw new \PDOException("Database query failed.");
         }
-        $deleteCartItemsSql = "DELETE FROM cart_items";
-        $statement = $this->conn->prepare($deleteCartItemsSql);
-        $statement->execute([]);
+    }
+
+    public function createOrder(): bool
+    {
+        $this->conn->beginTransaction();
+        try {
+            $orderSql = "INSERT INTO orders () VALUES ()";
+            $statement = $this->conn->prepare($orderSql);
+            $statement->execute([]);
+            $order_id = $this->conn->lastInsertId();
+            $cartItemsSql = "SELECT * FROM cart_items";
+            $statement = $this->conn->prepare($cartItemsSql);
+            $statement->execute([]);
+            $fieldsArray = $statement->fetchAll();
+            foreach ($fieldsArray as $fields) {
+                $sql = "INSERT INTO order_items (order_id, car_id, quantity) VALUES (:order_id, :car_id, :quantity)";
+                $statement = $this->conn->prepare($sql);
+                $statement->execute([
+                    ':order_id' => $order_id,
+                    ':car_id' => $fields["car_id"],
+                    ':quantity' => $fields["quantity"]
+                ]);
+            }
+            $deleteCartItemsSql = "DELETE FROM cart_items";
+            $statement = $this->conn->prepare($deleteCartItemsSql);
+            $statement->execute([]);
+            return $this->conn->commit();
+        } catch (\Exception $e) {
+            $this->conn->rollBack();
+            throw new \PDOException("Database query failed.");
+        }
     }
 }

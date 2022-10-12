@@ -5,6 +5,7 @@ namespace App\Controllers\Cars;
 
 use App\Classes\Car\Car;
 use App\Classes\Car\CarRepository;
+use Exception;
 
 class CarController
 {
@@ -30,11 +31,11 @@ class CarController
 
     /**
      * @param array<string,string|int|float> $params
-     * @return void
+     * @throws Exception
      */
-    public function save(array $params): void
+    public function save(array $params): bool
     {
-        $this->carRepository->save($params);
+        return $this->carRepository->save($params);
     }
 
     public function delete(int $id): void

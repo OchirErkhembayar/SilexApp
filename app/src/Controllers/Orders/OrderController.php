@@ -16,9 +16,9 @@ class OrderController
         $this->orderRepository = $orderRepository;
     }
 
-    public function save(): void
+    public function save(): bool
     {
-        $this->orderRepository->createOrder();
+        return $this->orderRepository->createOrder();
     }
 
     /**
@@ -31,7 +31,8 @@ class OrderController
 
     /**
      * @return array{order:Order,order_items:array<OrderItem>}
-     * */
+     *
+     */
     public function getOrder(int $id): array
     {
         return $this->orderRepository->getOrder($id);

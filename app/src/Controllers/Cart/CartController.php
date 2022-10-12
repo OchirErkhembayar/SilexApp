@@ -29,13 +29,13 @@ class CartController
         return $this->cartRepository->getCartItems($cart_id);
     }
 
-    public function addToCart(int $car_id, int $cart_id): void
+    public function addToCart(int $car_id, int $cart_id): bool
     {
-        $this->cartRepository->addToCart($car_id, $cart_id);
+        return $this->cartRepository->addToCart($car_id, $cart_id);
     }
 
-    public function removeFromCart(int $cart_item_id): void
+    public function removeFromCart(int $cart_item_id): bool
     {
-        $this->cartRepository->removeFromCart($cart_item_id);
+        return $this->cartRepository->removeFromCart($cart_item_id);
     }
 }

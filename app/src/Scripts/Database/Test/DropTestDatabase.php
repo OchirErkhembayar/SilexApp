@@ -1,8 +1,6 @@
 <?php
 require_once 'Data/Car/CarData.php';
 
-use App\Scripts\Database\Test\Data\Car\CarData;
-
 try {
     $host = "mysql";
     $db_name = "silexCarsTest";
