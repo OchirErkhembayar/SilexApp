@@ -57,6 +57,7 @@ class CarRepository
 
     /**
      * @throws Exception
+     * @param array<string,string|float> $params
      */
     function save(array $params): bool
     {

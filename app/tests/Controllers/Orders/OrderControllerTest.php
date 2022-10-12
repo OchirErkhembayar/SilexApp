@@ -44,6 +44,7 @@ class OrderControllerTest extends TestCase
     public function it_can_get_order_by_id(): void
     {
         $order = $this->orderController->getOrders()[0];
+        \assert($order->order_id !== null);
         $order = $this->orderController->getOrder($order->order_id);
         $this->assertIsArray($order);
     }

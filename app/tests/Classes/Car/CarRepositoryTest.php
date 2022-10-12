@@ -15,8 +15,6 @@ class CarRepositoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $carData = new CarData();
-        $this->fields = $carData::CAR_FIELDS_ARRAY;
         $dbc = new DatabaseConnection("silexCarsTest");
         $this->carRepository = new CarRepository($dbc);
     }

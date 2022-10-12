@@ -28,6 +28,6 @@ class Car
      * */
     public static function manyFromDatabaseFields(array $fields): array
     {
-        return \array_map('self::oneFromDatabaseFields', $fields);
+        return \array_map([Car::class, 'oneFromDatabaseFields'], $fields);
     }
 }

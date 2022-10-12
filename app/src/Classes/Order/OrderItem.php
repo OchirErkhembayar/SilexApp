@@ -30,6 +30,6 @@ class OrderItem
      * */
     public static function manyFromDatabaseFields(array $fields): array
     {
-        return \array_map('self::oneFromDatabaseFields', $fields);
+        return \array_map([OrderItem::class, 'oneFromDatabaseFields'], $fields);
     }
 }

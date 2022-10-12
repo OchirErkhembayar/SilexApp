@@ -12,6 +12,9 @@ use PHPUnit\Framework\TestCase;
 class CarControllerTest extends TestCase
 {
     private CarController $carController;
+    /**
+     * @var array<string|int,string|float> $fields
+     */
     private array $fields;
 
     public function setUp(): void
@@ -41,7 +44,9 @@ class CarControllerTest extends TestCase
      */
     public function it_can_fetch_one_car_by_id(): void
     {
-        $car = $this->carController->getOne($this->carController->getAll()[0]->car_id);
+        $car = $this->carController->getAll()[0];
+        \assert($car->car_id !== null);
+        $car = $this->carController->getOne($car->car_id);
         $this->assertObjectHasAttribute("name", $car);
         $this->assertObjectHasAttribute("brand", $car);
         $this->assertObjectHasAttribute("model", $car);
@@ -55,7 +60,10 @@ class CarControllerTest extends TestCase
      */
     public function it_can_save_a_car_to_the_database(): void
     {
-       $params = $this->fields[0];
+        /**
+         * @var array<string,int|float|string> $params
+         */
+       $params = $this->fields[1];
        $result = $this->carController->save($params);
        $this->assertTrue($result);
     }

@@ -32,6 +32,6 @@ class CartItem
      * */
     public static function manyFromDatabaseFields(array $fields): array
     {
-        return \array_map('self::oneFromDatabaseFields', $fields);
+        return \array_map([CartItem::class, 'oneFromDatabaseFields'], $fields);
     }
 }
