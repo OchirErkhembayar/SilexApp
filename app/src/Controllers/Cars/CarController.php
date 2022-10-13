@@ -19,9 +19,9 @@ class CarController
     /**
      * @return array<Car>
      * */
-    public function getAll(): array
+    public function getAll(int $user_id): array
     {
-        return $this->carRepository->getCars();
+        return $this->carRepository->getCars($user_id);
     }
 
     public function getOne(int $id): Car
@@ -33,9 +33,9 @@ class CarController
      * @param array<string,string|int|float> $params
      * @throws Exception
      */
-    public function save(array $params): bool
+    public function save(array $params, int $user_id): bool
     {
-        return $this->carRepository->save($params);
+        return $this->carRepository->save($params, $user_id);
     }
 
     public function delete(int $id): void

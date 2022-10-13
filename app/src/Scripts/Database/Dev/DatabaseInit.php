@@ -34,7 +34,15 @@ try {
     constraint engines_cars_null_fk
         foreign key (car_id) references silexCars.cars (car_id)
             on delete cascade
-);", "create table silexCars.carts
+);", "CREATE TABLE `users` (
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+", "create table silexCars.carts
 (
     cart_id int auto_increment
         primary key

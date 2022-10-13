@@ -25,7 +25,7 @@ class OrderControllerTest extends TestCase
      */
     public function it_can_get_orders(): void
     {
-        $orders = $this->orderController->getOrders();
+        $orders = $this->orderController->getOrders(1);
         $this->assertIsArray($orders);
     }
 
@@ -34,7 +34,7 @@ class OrderControllerTest extends TestCase
      */
     public function it_can_create_order(): void
     {
-        $result = $this->orderController->save();
+        $result = $this->orderController->save(1);
         $this->assertTrue($result);
     }
 
@@ -43,7 +43,7 @@ class OrderControllerTest extends TestCase
      */
     public function it_can_get_order_by_id(): void
     {
-        $order = $this->orderController->getOrders()[0];
+        $order = $this->orderController->getOrders(1)[0];
         \assert($order->order_id !== null);
         $order = $this->orderController->getOrder($order->order_id);
         $this->assertIsArray($order);

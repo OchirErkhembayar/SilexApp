@@ -5,7 +5,7 @@
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="collapse navbar-collapse justify-content-between align-content-center" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/">Home</a>
@@ -13,19 +13,55 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/cars">Cars</a>
                 </li>
+                {% if logged_in %}
                 <li class="nav-item">
                     <a class="nav-link" href="/cars/new-car">Add Car</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/cart">Cart</a>
+                    <a class="nav-link" href="/cart" id="cart-quantity">Cart</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/orders">Orders</a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="/about">About</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <div class="ms-3 d-flex align-content-center">
+                    {% if logged_in %}
+                        <p class="text-muted" style="margin: auto 0;" id="username">{{ username }}</p>
+                        <p class="text-muted" style="margin: auto 1rem" id="balance">Balance £{{ balance }}</p>
+                    {% endif %}
+                </div>
+                <li class="nav-item">
+                    {% if not logged_in %}
+                        <a class="nav-link active" aria-current="page" href="/auth/login">Login</a>
+                    {% else %}
+                        <a class="nav-link active" aria-current="page" href="/auth/logout">Logout</a>
+                    {% endif %}
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+<script>
+    const quantityElement = document.getElementById("cart-quantity");
+    fetch('http://localhost:8080/cart/quantity')
+        .then(result => result.json())
+        .then(data => {
+            quantityElement.innerHTML = `Cart (${data})`
+        })
+    fetch('http://localhost:8080/users/details')
+        .then(result => {
+            return result.json();
+        })
+        .then(data => {
+            const usernameElement = document.getElementById("username");
+            const balanceElement = document.getElementById("balance");
+            balanceElement.innerHTML = `Balance: £${data.balance}`;
+            usernameElement.innerHTML = `Hello, ${data.username}`;
+        })
+        .catch(err => console.log(err));
+</script>

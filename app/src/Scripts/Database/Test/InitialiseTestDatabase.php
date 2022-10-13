@@ -36,7 +36,15 @@ try {
         constraint engines_cars_null_fk
             foreign key (car_id) references cars (car_id)
                 on delete cascade
-    );", "create table silexCarsTest.carts
+    );", "CREATE TABLE `users` (
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+", "create table silexCarsTest.carts
     (
         cart_id int auto_increment
             primary key
@@ -83,13 +91,13 @@ try {
     }
     echo "Tables created\n";
     echo "Created one cart\n";
-    $sql = "INSERT INTO carts () VALUES ()";
+    $sql = "INSERT INTO carts (user_id) VALUES (1)";
     $conn->exec($sql);
     echo "One cart created\n";
     echo "Creating 4 cars and engines\n";
     $carFieldsArray = CarData::CAR_FIELDS_ARRAY;
     foreach ($carFieldsArray as $fields) {
-        $carSql = "INSERT INTO cars VALUES (:car_id,:brand, :name, :model, :url, :price)";
+        $carSql = "INSERT INTO cars VALUES (:car_id,:brand, :name, :model, :url, :price, :user_id)";
         $engineSql = "INSERT INTO engines VALUES (:horsepower, :engine_id, :car_id)";
         $carStatement = $conn->prepare($carSql);
         $carStatement->execute([
@@ -98,7 +106,8 @@ try {
             ':model' => $fields["model"],
             ':url' => $fields["url"],
             ':price' => $fields["price"],
-            ':car_id' => $fields["car_id"]
+            ':car_id' => $fields["car_id"],
+            ':user_id' => $fields["user_id"]
         ]);
         $engineStatement = $conn->prepare($engineSql);
         $engineStatement->execute([

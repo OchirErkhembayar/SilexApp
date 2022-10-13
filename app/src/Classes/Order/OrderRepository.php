@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Classes\Order;
 
+use _PHPStan_acbb55bae\Nette\Neon\Exception;
 use App\Classes\Database\DatabaseConnection;
 use PDO;
 
@@ -18,18 +19,18 @@ class OrderRepository
     /**
      * @return array<Order>
      * */
-    public function getOrders(): array
+    public function getOrders(int $user_id): array
     {
         $this->conn->beginTransaction();
         try {
             $sql = "SELECT * FROM orders
                     JOIN order_items ON orders.order_id=order_items.order_id
-                    JOIN cars ON cars.car_id=order_items.car_id";
-            $result = $statement = $this->conn->query($sql);
-            if (gettype($result) === "boolean") {
-                throw new \PDOException("Failed to fetch orders.");
-            }
-            $fieldsArray = $result->fetchAll(PDO::FETCH_GROUP);
+                    JOIN cars ON cars.car_id=order_items.car_id WHERE orders.user_id=:user_id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':user_id' => $user_id
+            ]);
+            $fieldsArray = $statement->fetchAll(PDO::FETCH_GROUP);
             $this->conn->commit();
             return Order::manyFromDatabaseFields($fieldsArray);
         } catch (\Exception $e) {
@@ -68,17 +69,28 @@ class OrderRepository
         }
     }
 
-    public function createOrder(): bool
+    public function createOrder(int $user_id): bool
     {
         $this->conn->beginTransaction();
         try {
-            $orderSql = "INSERT INTO orders () VALUES ()";
+            $orderSql = "INSERT INTO orders (user_id) VALUES (:id)";
             $statement = $this->conn->prepare($orderSql);
-            $statement->execute([]);
+            $statement->execute([
+                ':id' => $user_id
+            ]);
             $order_id = $this->conn->lastInsertId();
-            $cartItemsSql = "SELECT * FROM cart_items";
+            $sql = "SELECT cart_id FROM carts WHERE user_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':id' => $user_id
+            ]);
+            $fields = $statement->fetchAll()[0];
+            $cart_id = $fields["cart_id"];
+            $cartItemsSql = "SELECT * FROM cart_items WHERE cart_id=:cart_id";
             $statement = $this->conn->prepare($cartItemsSql);
-            $statement->execute([]);
+            $statement->execute([
+                ':cart_id' => $cart_id
+            ]);
             $fieldsArray = $statement->fetchAll();
             foreach ($fieldsArray as $fields) {
                 $sql = "INSERT INTO order_items (order_id, car_id, quantity) VALUES (:order_id, :car_id, :quantity)";
@@ -89,13 +101,39 @@ class OrderRepository
                     ':quantity' => $fields["quantity"]
                 ]);
             }
-            $deleteCartItemsSql = "DELETE FROM cart_items";
+            $deleteCartItemsSql = "DELETE FROM cart_items WHERE cart_id=:id";
             $statement = $this->conn->prepare($deleteCartItemsSql);
-            $statement->execute([]);
+            $statement->execute([
+                ':id' => $cart_id
+            ]);
+            $sql = "SELECT * FROM order_items INNER JOIN cars ON order_items.car_id = cars.car_id WHERE order_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':id' => $order_id
+            ]);
+            $fields = $statement->fetchAll();
+            $price = array_reduce($fields, function ($sum, $fields) {
+               return $sum + ($fields["quantity"] * $fields["price"]);
+            }, 0);
+            $sql = "SELECT balance FROM users WHERE user_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':id' => $user_id
+            ]);
+            $currentBalance = $statement->fetchAll()[0]["balance"];
+            if ($currentBalance < $price) {
+                throw new Exception("You're poor!");
+            }
+            $sql = "UPDATE users SET balance=balance-:price WHERE user_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+               ':price' => $price,
+               ':id' => $user_id
+            ]);
             return $this->conn->commit();
         } catch (\Exception $e) {
             $this->conn->rollBack();
-            throw new \PDOException("Database query failed.");
+            throw new \PDOException($e->getMessage());
         }
     }
 }

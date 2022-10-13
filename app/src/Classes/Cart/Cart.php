@@ -5,7 +5,7 @@ namespace App\Classes\Cart;
 
 class Cart
 {
-    public function __construct(public readonly int $cart_id = 0) {}
+    public function __construct(public readonly int $cart_id = 0, public readonly int $user_id = 1) {}
 
     /**
      * @param array<string,int> $fields

@@ -28,6 +28,9 @@
                 <label for="price" class="form-label">Price £</label>
                 <input type="number" class="form-control" id="price" name="price">
             </div>
+            {% if error == 1 %}
+                <p style="color: red;">Cannot leave empty fields!</p>
+            {% endif %}
             <button type="submit" class="btn btn-primary w-100">Submit</button>
         </form>
     </div>

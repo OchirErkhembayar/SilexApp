@@ -6,7 +6,7 @@ namespace App\Classes\Order;
 class Order
 {
     public function __construct(public readonly ?int $order_id = null, public readonly ?float $total = null, public
-    readonly ?int $quantity = null) {}
+    readonly ?int $quantity = null, public readonly int $user_id = 1) {}
 
     /**
      * @param array<string|int,array<string,int|float>> $fieldsArray

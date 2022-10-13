@@ -10,5 +10,20 @@
         {% if content %}
             <p>{{ content }}</p>
         {% endif %}
+        {{ id }}
+        <p id="target"></p>
+        <button class="btn btn-primary" id="starwars">Make Star Wars Character's Name Print Above Me</button>
+        <script>
+            const button = document.getElementById("starwars");
+            button.addEventListener('click', () => {
+                fetch('https://swapi.dev/api/people/' + Math.ceil(Math.random() * 15))
+                    .then(result => result.json())
+                    .then(data => {
+                        console.log(data);
+                        const targetElement = document.getElementById("target");
+                        targetElement.innerHTML = data.name;
+                    });
+            });
+        </script>
     </div>
 {% endblock %}

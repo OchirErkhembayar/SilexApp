@@ -19,16 +19,16 @@ class CarRepository
     /**
      * @return array<Car>
      * */
-    function getCars(): array
+    function getCars(int $user_id): array
     {
         $this->conn->beginTransaction();
         try {
-            $sql = "SELECT * FROM cars INNER JOIN engines ON cars.car_id=engines.car_id";
-            $result = $this->conn->query($sql);
-            if (!$result) {
-                throw new \PDOException("Failed to fetch cars.");
-            }
-            $fields = $result->fetchAll();
+            $sql = "SELECT * FROM cars INNER JOIN engines ON cars.car_id=engines.car_id WHERE user_id != :id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+               ':id' => $user_id
+            ]);
+            $fields = $statement->fetchAll();
             $this->conn->commit();
             return Car::manyFromDatabaseFields($fields);
         } catch (Exception $e) {
@@ -59,18 +59,19 @@ class CarRepository
      * @throws Exception
      * @param array<string,string|float> $params
      */
-    function save(array $params): bool
+    function save(array $params, int $user_id): bool
     {
         $this->conn->beginTransaction();
         try {
-            $car_sql = "INSERT INTO cars (name, brand, model, url, price) VALUES (:name, :brand, :model, :url, :price)";
+            $car_sql = "INSERT INTO cars (name, brand, model, url, price, user_id) VALUES (:name, :brand, :model, :url, :price, :user_id)";
             $car_statement = $this->conn->prepare($car_sql);
             $car_statement->execute([
                 'name' => $params["name"],
                 'brand' => $params["brand"],
                 'model' => $params["model"],
                 'url' => $params["url"],
-                'price' => $params["price"]
+                'price' => $params["price"],
+                ':user_id' => $user_id
             ]);
             $car_id = $this->conn->lastInsertId();
             $engine_sql = "INSERT INTO engines (horsepower, car_id) VALUES (:horsepower, :car_id)";

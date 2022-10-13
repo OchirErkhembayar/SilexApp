@@ -31,7 +31,7 @@ class CarControllerTest extends TestCase
      */
     public function it_can_fetch_all_cars_from_the_database(): void
     {
-        $cars = $this->carController->getAll();
+        $cars = $this->carController->getAll(0);
         $this->assertObjectHasAttribute("name", $cars[0]);
         $this->assertObjectHasAttribute("brand", $cars[0]);
         $this->assertObjectHasAttribute("model", $cars[0]);
@@ -44,7 +44,7 @@ class CarControllerTest extends TestCase
      */
     public function it_can_fetch_one_car_by_id(): void
     {
-        $car = $this->carController->getAll()[0];
+        $car = $this->carController->getAll(0)[0];
         \assert($car->car_id !== null);
         $car = $this->carController->getOne($car->car_id);
         $this->assertObjectHasAttribute("name", $car);
@@ -64,7 +64,7 @@ class CarControllerTest extends TestCase
          * @var array<string,int|float|string> $params
          */
        $params = $this->fields[1];
-       $result = $this->carController->save($params);
+       $result = $this->carController->save($params, 1);
        $this->assertTrue($result);
     }
 }

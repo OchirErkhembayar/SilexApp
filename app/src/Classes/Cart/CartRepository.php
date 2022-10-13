@@ -17,15 +17,15 @@ class CartRepository
         $this->conn = $conn->conn;
     }
 
-    public function getCart(): Cart
+    public function getCart(int $user_id): Cart
     {
         $this->conn->beginTransaction();
         try {
-            $sql = "SELECT * FROM carts";
-            $statement = $this->conn->query($sql);
-            if (gettype($statement) === "boolean") {
-                throw new PDOException("Failed to fetch cart.");
-            }
+            $sql = "SELECT * FROM carts WHERE user_id=:user_id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':user_id' => $user_id
+            ]);
             $fields = $statement->fetchAll()[0];
             $this->conn->commit();
             return Cart::oneFromDatabaseFields($fields);
@@ -89,7 +89,45 @@ class CartRepository
             return $this->conn->commit();
         } catch (Exception $e) {
             $this->conn->rollBack();
-            throw new PDOException("Failed to get cart");
+            throw new PDOException("Failed to add to cart " . $e->getMessage());
+        }
+    }
+
+    public function getCartQuantity(int $user_id): int
+    {
+        try {
+            $sql = "SELECT cart_id FROM carts WHERE user_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':id' => $user_id
+            ]);
+            $fields = $statement->fetchAll()[0];
+            $sql = "SELECT SUM(quantity) FROM cart_items WHERE cart_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':id' => $fields["cart_id"]
+            ]);
+            return intval($statement->fetch(PDO::FETCH_NUM)[0]);
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw new PDOException("Failed to get cart quantity");
+        }
+    }
+
+    public function editCartQuantity(int $cart_item_id, int $quantity): bool
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "UPDATE cart_items SET quantity=:quantity WHERE cart_item_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':quantity' => $quantity,
+                ':id' => $cart_item_id
+            ]);
+            return $this->conn->commit();
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
         }
     }
 

@@ -12,7 +12,8 @@ class CarData
                                          "url" => "TestURL",
                                          "price" => 1337,
                                          "horsepower" => 1337,
-                                         "engine_id" => 1
+                                         "engine_id" => 1,
+                                         "user_id" => 1
                                      ], [
                                          "car_id" => 2,
                                          "name" => "TestCar2",
@@ -21,7 +22,8 @@ class CarData
                                          "url" => "TestUR2",
                                          "price" => 1338,
                                          "horsepower" => 1338,
-                                         "engine_id" => 2
+                                         "engine_id" => 2,
+                                         "user_id" => 1
                                      ], [
                                          "car_id" => 3,
                                          "name" => "TestCar3",
@@ -30,7 +32,8 @@ class CarData
                                          "url" => "TestURL3",
                                          "price" => 1339,
                                          "horsepower" => 1339,
-                                         "engine_id" => 3
+                                         "engine_id" => 3,
+                                         "user_id" => 1
                                      ], [
                                          "car_id" => 4,
                                          "name" => "TestCar4",
@@ -39,6 +42,7 @@ class CarData
                                          "url" => "TestURL4",
                                          "price" => 1340,
                                          "horsepower" => 1340,
-                                         "engine_id" => 4
+                                         "engine_id" => 4,
+                                         "user_id" => 1
                                      ]];
 }

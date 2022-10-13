@@ -23,6 +23,6 @@ class CarRepositoryTest extends TestCase
      */
     public function it_can_fetch_all_cars_from_the_database(): void
     {
-        $this->assertEquals("object", gettype($this->carRepository->getCars()[0]));
+        $this->assertEquals("object", gettype($this->carRepository->getCars(0)[0]));
     }
 }

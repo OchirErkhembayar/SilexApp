@@ -16,9 +16,14 @@ class CartController
         $this->cartRepository = $cartRepository;
     }
 
-    public function getCart(): Cart
+    public function getCart(int $user_id): Cart
     {
-        return $this->cartRepository->getCart();
+        return $this->cartRepository->getCart($user_id);
+    }
+
+    public function getCartQuantity(int $user_id): int
+    {
+        return $this->cartRepository->getCartQuantity($user_id);
     }
 
     /**
@@ -32,6 +37,14 @@ class CartController
     public function addToCart(int $car_id, int $cart_id): bool
     {
         return $this->cartRepository->addToCart($car_id, $cart_id);
+    }
+
+    public function editCartQuantity(int $cart_item_id, int $quantity): bool
+    {
+        if ($quantity < 1) {
+            return $this->cartRepository->removeFromCart($cart_item_id);
+        }
+        return $this->cartRepository->editCartQuantity($cart_item_id, $quantity);
     }
 
     public function removeFromCart(int $cart_item_id): bool

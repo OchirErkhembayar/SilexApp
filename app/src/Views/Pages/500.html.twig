@@ -4,5 +4,8 @@
     <div style="margin: 0 auto; width: fit-content;">
         <h2>500 Error</h2>
         <p>You suck at coding.</p>
+        {% if error %}
+            {{ error }}
+        {% endif %}
     </div>
 {% endblock %}

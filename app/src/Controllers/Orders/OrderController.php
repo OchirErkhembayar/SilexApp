@@ -16,17 +16,17 @@ class OrderController
         $this->orderRepository = $orderRepository;
     }
 
-    public function save(): bool
+    public function save(int $user_id): bool
     {
-        return $this->orderRepository->createOrder();
+        return $this->orderRepository->createOrder($user_id);
     }
 
     /**
      * @return array<Order>
      * */
-    public function getOrders(): array
+    public function getOrders(int $user_id): array
     {
-        return $this->orderRepository->getOrders();
+        return $this->orderRepository->getOrders($user_id);
     }
 
     /**
