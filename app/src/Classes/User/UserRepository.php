@@ -43,7 +43,11 @@ class UserRepository
                 ':username' => $username,
                 ':password' => $password
             ]);
-            $fields = $statement->fetchAll()[0];
+            $fieldsArray = $statement->fetchAll();
+            if (count($fieldsArray) === 0) {
+                throw new \InvalidArgumentException("Incorrect login credentials");
+            }
+            $fields = $fieldsArray[0];
             return User::oneFromDatabaseFields($fields);
         } catch (Exception $e) {
             return $this->conn->rollBack();

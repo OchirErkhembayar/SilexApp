@@ -186,8 +186,12 @@ $app->get('/users/details', function () use ($app) {
 });
 
 $app->get('/auth/login', function () use ($app) {
-   return $app['twig']->render('/pages/login.html.twig', []);
+   return $app['twig']->render('users/login.html.twig', []);
 })->bind("login");
+//
+//$app->get('/auth/signup', function () use ($app) {
+//    return $app['twig']->render('users/signup.html.twig', []);
+//});
 
 $app->get('/auth/logout', function () use ($app) {
    $app['session']->clear();
@@ -196,9 +200,11 @@ $app->get('/auth/logout', function () use ($app) {
 
 $app->post('/auth/authenticate', function(Request $request) use ($app) {
    $params = $request->request;
+   $username = $params->get('username');
+   $password = $params->get('password');
    $authorization = new Authorization($app['app.repository.user']);
    $user = $authorization->login($params->get("username"), $params->get("password"));
-   if (!$user) {
+   if (!$user || !$username || !$password) {
        return $app->redirect($app['url_generator']->generate("login"));
    }
     $app['session']->set('user', [
