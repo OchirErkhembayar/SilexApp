@@ -18,4 +18,9 @@ class Authorization
     {
         return $this->userRepository->getAuthenticateUser($username, $password);
     }
+
+    public function signup(string $username, string $password, string $email): User|bool
+    {
+        return $this->userRepository->createUser($username, $email, $password);
+    }
 }

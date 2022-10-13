@@ -14,15 +14,15 @@
                     <a class="nav-link" href="/cars">Cars</a>
                 </li>
                 {% if logged_in %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/cars/new-car">Add Car</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/cart" id="cart-quantity">Cart</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/orders">Orders</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cars/new-car">Add Car</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart" id="cart-quantity">Cart</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders">Orders</a>
+                    </li>
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="/about">About</a>
@@ -37,7 +37,10 @@
                 </div>
                 <li class="nav-item">
                     {% if not logged_in %}
-                        <a class="nav-link active" aria-current="page" href="/auth/login">Login</a>
+                            <a class="nav-link active" aria-current="page" href="/users/login">Login</a>
+                        </li>
+                        <li>
+                            <a class="nav-link active" aria-current="page" href="/users/signup">Signup</a>
                     {% else %}
                         <div class="d-flex">
                             <a class="nav-link active" aria-current="page" href="/users/add-balance">Add Balance</a>

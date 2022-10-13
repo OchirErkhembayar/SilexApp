@@ -54,6 +54,36 @@ class UserRepository
         }
     }
 
+    public function createUser(string $username, string $email, string $password): User|bool
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "INSERT INTO users VALUES (:username, :password, :email)";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+               ':username' => $username,
+               ':password' => $password,
+               ':email' => $email
+            ]);
+            $user_id = $this->conn->lastInsertId();
+            $sql = "SELECT username, email, balance FROM users where user_id=:id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':id' => $user_id
+            ]);
+            $params = $statement->fetchAll()[0];
+            $sql = "INSERT INTO carts VALUES (:user_id)";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':user_id' => $user_id
+            ]);
+            $this->conn->commit();
+            return User::oneFromDatabaseFields($params);
+        } catch (Exception $e) {
+            return $this->conn->rollBack();
+        }
+    }
+
     public function addBalance(int $user_id, float $amount): void
     {
         try {

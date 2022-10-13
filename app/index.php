@@ -180,18 +180,37 @@ $app->post('/users/add-money', function(Request $request) use ($app) {
     return $app->redirect($app["url_generator"]->generate("cars"));
 });
 
+
 $app->get('/users/details', function () use ($app) {
     $user = $app['app.controller.user']->getUserDetails($app['session']->get('user')["id"]);
     return json_encode($user);
 });
 
-$app->get('/auth/login', function () use ($app) {
-   return $app['twig']->render('users/login.html.twig', []);
+$app->get('/users/login', function () use ($app) {
+   return $app['twig']->render('/pages/login.html.twig', []);
 })->bind("login");
-//
-//$app->get('/auth/signup', function () use ($app) {
-//    return $app['twig']->render('users/signup.html.twig', []);
-//});
+
+$app->get('/users/signup', function () use ($app) {
+    return $app['twig']->render('/pages/signup.html.twig', []);
+});
+
+$app->post('/auth/create-user', function (Request $request) use ($app) {
+    $params = $request->request;
+    $username = $params->get('username');
+    $email = $params->get('email');
+    $password = $params->get('password');
+    $authorization = new Authorization($app['app.repository.user']);
+    $user = $authorization->signup($username, $password, $email);
+    if (!$username || !$password || !$email || !$user) {
+        return $app->redirect($app['url_generator']->generate("signup"));
+    }
+    $app['session']->set('user', [
+        "id" => $user->user_id,
+        "username" => $user->username,
+        "balance" => $user->balance
+    ]);
+    return $app->redirect($app['url_generator']->generate("cars"));
+})->bind("signup");
 
 $app->get('/auth/logout', function () use ($app) {
    $app['session']->clear();
