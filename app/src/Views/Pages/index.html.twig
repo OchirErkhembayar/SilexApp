@@ -1,16 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block main %}
-    {# If a title is set, render it. #}
     <div style="width: fit-content; margin: 0 auto;">
         {% if title %}
             <h1>{{ title }}</h1>
         {% endif %}
-        {# If content is set, render it. #}
         {% if content %}
             <p>{{ content }}</p>
         {% endif %}
-        {{ id }}
         <p id="target"></p>
         <button class="btn btn-primary" id="starwars">Make Star Wars Character's Name Print Above Me</button>
         <script>

@@ -33,7 +33,7 @@ class UserRepository
         }
     }
 
-    public function getAuthenticateUser(string $username, string $password): User|false
+    public function getAuthenticateUser(string $username, string $password): User|bool
     {
         try {
             $this->conn->beginTransaction();

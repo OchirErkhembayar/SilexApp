@@ -14,7 +14,7 @@ class Authorization
         $this->userRepository = $userRepository;
     }
 
-    public function login($username, $password): User|false
+    public function login(string $username, string $password): User|bool
     {
         return $this->userRepository->getAuthenticateUser($username, $password);
     }

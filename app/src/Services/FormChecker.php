@@ -6,14 +6,14 @@ namespace App\Services;
 class FormChecker
 {
     /**
-     * @param array<string,string> $params
+     * @param array<string,string|int|float> $params
      * @return bool
      */
     public function checkAddCarInputs(array $params): bool
     {
         foreach ($params as $value)
         {
-            if (empty(trim($value))) {
+            if (empty(trim(strval($value)))) {
                 return false;
             }
         }

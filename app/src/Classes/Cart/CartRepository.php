@@ -107,7 +107,7 @@ class CartRepository
             $statement->execute([
                 ':id' => $fields["cart_id"]
             ]);
-            return intval($statement->fetch(PDO::FETCH_NUM)[0]);
+            return intval(((array)$statement->fetch(PDO::FETCH_NUM))[0]);
         } catch (Exception $e) {
             $this->conn->rollBack();
             throw new PDOException("Failed to get cart quantity");
