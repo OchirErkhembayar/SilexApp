@@ -10,10 +10,12 @@
                 <h6 class="card-subtitle mb-2 text-muted">Engine horsepower: {{ car.engine.horsepower }}</h6>
                 <h6 class="card-subtitle text-muted">Price: £{{ car.price }}</h6>
             </div>
-            <form method="post" action="/cart/add-to-cart">
-                <input type="hidden" name="id" id="id" value="{{ car.car_id }}" />
-                <button type="submit" class="mb-3 btn btn-success btn-sm">Add To Cart</button>
-            </form>
+            {% if logged_in and id != car.user_id %}
+                <form method="post" action="/cart/add-to-cart">
+                    <input type="hidden" name="id" id="id" value="{{ car.car_id }}" />
+                    <button type="submit" class="mb-3 btn btn-success btn-sm">Add To Cart</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

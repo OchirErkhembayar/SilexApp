@@ -25,11 +25,12 @@ class CarTest extends TestCase
             "url" => "TestURL",
             "price" => 1337,
             "horsepower" => 1337,
-            "engine_id" => 1
+            "engine_id" => 1,
+            "user_id" => 1
         ];
         $engine = new Engine(1337, 1);
         $car = new Car($engine, $fields["name"], $fields["model"], $fields["brand"], $fields["url"], $fields["price"],
-            $fields["car_id"]);
+            $fields["car_id"], $fields["user_id"]);
         $this->assertEquals($car, Car::oneFromDatabaseFields($fields));
     }
 
@@ -45,7 +46,7 @@ class CarTest extends TestCase
         {
             $engine = new Engine($fields["horsepower"], $fields["engine_id"]);
             $car = new Car($engine, $fields["name"], $fields["model"], $fields["brand"], $fields["url"], $fields["price"],
-                $fields["car_id"]);
+                $fields["car_id"], $fields["user_id"]);
             $carsArray[] = $car;
         }
         $this->assertEquals($carsArray, Car::manyFromDatabaseFields($fieldsArray));

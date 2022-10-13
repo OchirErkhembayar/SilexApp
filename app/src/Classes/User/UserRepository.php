@@ -49,4 +49,21 @@ class UserRepository
             return $this->conn->rollBack();
         }
     }
+
+    public function addBalance(int $user_id, float $amount): void
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "UPDATE users SET balance = balance + :amount WHERE user_id=:user_id";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+               ':amount' => $amount,
+               ':user_id' => $user_id
+            ]);
+            $this->conn->commit();
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw new \PDOException("Failed to add balance");
+        }
+    }
 }

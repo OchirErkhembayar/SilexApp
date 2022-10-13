@@ -39,6 +39,7 @@ if (!$app['session']->isEmpty('user')) {
     $app['twig']->addGlobal('username', $app['session']->get('user')["username"]);
     $app['twig']->addGlobal('logged_in', true);
     $app['twig']->addGlobal('balance', $app['session']->get('user')['balance']);
+    $app['twig']->addGlobal('id', $app['session']->get('user')["id"]);
 }
 
 $app->get('/', function () use ($app) {
@@ -166,6 +167,17 @@ $app->post('/orders/create-order', function () use ($app) {
 
 $app->get('/cart/quantity', function() use ($app) {
     return json_encode($app['app.controller.cart']->getCartQuantity($app['session']->get('user')["id"]));
+});
+
+$app->get('/users/add-balance', function() use ($app) {
+    return $app['twig']->render('users/add-balance.html.twig', []);
+});
+
+$app->post('/users/add-money', function(Request $request) use ($app) {
+   $params = $request->request;
+   $amount = $params->get('amount');
+   $app['app.controller.user']->addBalance($app['session']->get('user')["id"], floatval($amount));
+    return $app->redirect($app["url_generator"]->generate("cars"));
 });
 
 $app->get('/users/details', function () use ($app) {

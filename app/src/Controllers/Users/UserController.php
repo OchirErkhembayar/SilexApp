@@ -18,4 +18,9 @@ class UserController
     {
         return $this->userRepository->fetchUserInfo($id);
     }
+
+    public function addBalance(int $id, float $amount): void
+    {
+        $this->userRepository->addBalance($id, $amount);
+    }
 }
