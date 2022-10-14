@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+set_time_limit(5);
+ini_set('memory_limit','16M');
+phpinfo();
+exit();
+
 \error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -41,7 +46,7 @@ $app['app.repository.user'] = fn($c) => new UserRepository($c['app.database']);
 $app['app.controller.user'] = fn($c) => new UserController($c['app.repository.user']);
 $app['app.service.userAuthorization'] = fn($c) => new UserAuthorization($app['app.repository.user']);
 $app->before(function (Request $request) use ($app) {
-    if (!$app['session']->get('user')) {
+    if ($app['session']->get('user')) {
         $app['twig']->addGlobal('username', $app['session']->get('user')["username"]);
         $app['twig']->addGlobal('logged_in', true);
         $app['twig']->addGlobal('balance', $app['session']->get('user')['balance']);
