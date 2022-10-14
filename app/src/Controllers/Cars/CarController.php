@@ -5,6 +5,7 @@ namespace App\Controllers\Cars;
 
 use App\Classes\Car\Car;
 use App\Classes\Car\CarRepository;
+use App\Classes\Car\Engine;
 use Exception;
 
 class CarController
@@ -33,9 +34,11 @@ class CarController
      * @param array<string,string|int|float> $params
      * @throws Exception
      */
-    public function save(array $params, int $user_id): bool
+    public function save(array $params, int $user_id): void
     {
-        return $this->carRepository->save($params, $user_id);
+        $car = new Car(new Engine((int)$params["horsepower"]), $params["name"], $params["model"], $params["brand"],
+            $params["url"], (float)$params["price"], null, (int)$user_id, null);
+        $this->carRepository->save($car);
     }
 
     public function delete(int $id): void

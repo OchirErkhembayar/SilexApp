@@ -16,7 +16,7 @@ class UserController
 
     public function getUserDetails(int $id): User
     {
-        return $this->userRepository->fetchUserInfo($id);
+        return $this->userRepository->findById($id);
     }
 
     public function addBalance(int $id, float $amount): void

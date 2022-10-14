@@ -24,9 +24,9 @@ class OrderController
     /**
      * @return array<Order>
      * */
-    public function getOrders(int $user_id): array
+    public function getOrdersById(int $user_id): array
     {
-        return $this->orderRepository->getOrders($user_id);
+        return $this->orderRepository->getOrdersByUserId($user_id);
     }
 
     /**
@@ -35,6 +35,6 @@ class OrderController
      */
     public function getOrder(int $id): array
     {
-        return $this->orderRepository->getOrder($id);
+        return $this->orderRepository->getOrderById($id);
     }
 }

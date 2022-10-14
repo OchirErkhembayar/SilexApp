@@ -16,14 +16,15 @@ class CartController
         $this->cartRepository = $cartRepository;
     }
 
-    public function getCart(int $user_id): Cart
+    public function findByUserId(int $user_id): Cart
     {
-        return $this->cartRepository->getCart($user_id);
+        return $this->cartRepository->findByUserId($user_id);
     }
 
     public function getCartQuantity(int $user_id): int
     {
-        return $this->cartRepository->getCartQuantity($user_id);
+        $cart = $this->getCartQuantity($user_id);
+        return $this->cartRepository->getCartQuantity($cart);
     }
 
     /**

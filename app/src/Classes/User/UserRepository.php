@@ -3,39 +3,84 @@
 namespace App\Classes\User;
 
 use App\Classes\Cart\CartRepository;
-use App\Classes\Database\DatabaseConnection;
-use App\Controllers\Cart\CartController;
+use App\Services\Database\DatabaseConnection;
 use Exception;
 use PDO;
+use PDOException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class UserRepository
 {
-    public PDO $conn;
+    private PDO $conn;
 
     public function __construct(DatabaseConnection $conn)
     {
         $this->conn = $conn->conn;
     }
 
-    public function fetchUserInfo(int $id): User
+    public function findById(int $id): User
     {
         try {
             $this->conn->beginTransaction();
             $sql = "SELECT username, email, balance, user_id FROM users WHERE user_id=:id";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
-               'id' => $id
+               ':id' => $id
             ]);
             $fields = $statement->fetchAll()[0];
             $this->conn->commit();
             return User::oneFromDatabaseFields($fields);
         } catch (Exception $e) {
             $this->conn->rollBack();
-            throw new \PDOException('Failed to fetch user details');
+            throw new PDOException('Failed to fetch user details');
         }
     }
 
-    public function getAuthenticateUser(string $username, string $password): User|bool
+    public function findByUsername(string $username): ?User
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "SELECT username, email, balance, user_id FROM users WHERE username=:username";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':username' => $username
+            ]);
+            $fieldsArray = $statement->fetchAll();
+            if (count($fieldsArray) < 1) {
+                throw new ResourceNotFoundException("Couldn't find user");
+            }
+            $fields = $fieldsArray[0];
+            $this->conn->commit();
+            return User::oneFromDatabaseFields($fields);
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+
+    public function findByEmail(string $email): User|bool
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "SELECT username, email, balance, user_id FROM users WHERE email=:email";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':email' => $email
+            ]);
+            $fieldsArray = $statement->fetchAll();
+            if (count($fieldsArray) < 1) {
+                throw new ResourceNotFoundException("Couldn't find user");
+            }
+            $fields = $fieldsArray[0];
+            $this->conn->commit();
+            return User::oneFromDatabaseFields($fields);
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
+        }
+    }
+
+    public function authenticateAndFindUser(string $username, string $password): User|bool
     {
         try {
             $this->conn->beginTransaction();
@@ -57,11 +102,11 @@ class UserRepository
         }
     }
 
-    public function createUser(string $username, string $email, string $password, CartRepository $cartRepository): User|bool
+    public function createUser(string $username, string $email, string $password, CartRepository $cartRepository): ?User
     {
         try {
             $this->conn->beginTransaction();
-            $sql = "INSERT INTO users VALUES (:username, :password, :email, :balance)";
+            $sql = "INSERT INTO users (username, password, email, balance) VALUES (:username, :password, :email, :balance)";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
                ':username' => $username,
@@ -70,17 +115,12 @@ class UserRepository
                ':balance' => 1000000
             ]);
             $user_id = $this->conn->lastInsertId();
-            $sql = "SELECT username, email, balance FROM users where user_id=:id";
-            $statement = $this->conn->prepare($sql);
-            $statement->execute([
-                ':id' => $user_id
-            ]);
-            $params = $statement->fetchAll()[0];
             $cartRepository->createCart($user_id);
             $this->conn->commit();
-            return User::oneFromDatabaseFields($params);
-        } catch (Exception $e) {
-            return $this->conn->rollBack();
+            return new User($email, $username, 1000000, $user_id);
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            throw $e;
         }
     }
 
@@ -97,7 +137,7 @@ class UserRepository
             $this->conn->commit();
         } catch (Exception $e) {
             $this->conn->rollBack();
-            throw new \PDOException("Failed to add balance");
+            throw new PDOException("Failed to add balance");
         }
     }
 }

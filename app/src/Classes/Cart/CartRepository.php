@@ -3,21 +3,21 @@ declare(strict_types=1);
 
 namespace App\Classes\Cart;
 
-use App\Classes\Database\DatabaseConnection;
+use App\Services\Database\DatabaseConnection;
 use Exception;
 use PDO;
 use PDOException;
 
 class CartRepository
 {
-    public PDO $conn;
+    private PDO $conn;
 
     public function __construct(DatabaseConnection $conn)
     {
         $this->conn = $conn->conn;
     }
 
-    public function getCart(int $user_id): Cart
+    public function findByUserId(int $user_id): Cart
     {
         $this->conn->beginTransaction();
         try {
@@ -58,18 +58,20 @@ class CartRepository
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function createCart(int $user_id): bool
     {
         try {
-            $this->conn->beginTransaction();
-            $sql = "INSERT INTO carts VALUES (:user_id)";
+            $sql = "INSERT INTO carts (user_id) VALUES (:user_id)";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
                ':user_id' => $user_id
             ]);
-            return $this->conn->commit();
+            return true;
         } catch (Exception $e) {
-            return $this->conn->rollBack();
+            throw new Exception("Failed to create cart");
         }
     }
 
@@ -108,19 +110,13 @@ class CartRepository
         }
     }
 
-    public function getCartQuantity(int $user_id): int
+    public function getCartQuantity(Cart $cart): int
     {
         try {
-            $sql = "SELECT cart_id FROM carts WHERE user_id=:id";
-            $statement = $this->conn->prepare($sql);
-            $statement->execute([
-                ':id' => $user_id
-            ]);
-            $fields = $statement->fetchAll()[0];
             $sql = "SELECT SUM(quantity) FROM cart_items WHERE cart_id=:id";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
-                ':id' => $fields["cart_id"]
+                ':id' => $cart->cart_id
             ]);
             return intval(((array)$statement->fetch(PDO::FETCH_NUM))[0]);
         } catch (Exception $e) {

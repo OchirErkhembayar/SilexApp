@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace App\Classes\Order;
 
 use _PHPStan_acbb55bae\Nette\Neon\Exception;
-use App\Classes\Database\DatabaseConnection;
+use App\Services\Database\DatabaseConnection;
 use PDO;
 
 class OrderRepository
 {
-    public PDO $conn;
+    private PDO $conn;
 
     public function __construct(DatabaseConnection $conn)
     {
@@ -19,7 +19,7 @@ class OrderRepository
     /**
      * @return array<Order>
      * */
-    public function getOrders(int $user_id): array
+    public function getOrdersByUserId(int $user_id): array
     {
         $this->conn->beginTransaction();
         try {
@@ -39,10 +39,44 @@ class OrderRepository
         }
     }
 
+    public function saveOrder(int $user_id): void
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "INSERT INTO orders (user_id) VALUES (:user_id)";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':user_id' => $user_id
+            ]);
+            $this->conn->commit();
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+    }
+
+    public function saveOrderItem(OrderItem $orderItem): void
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "INSERT INTO silexCars.order_items (order_id, car_id, quantity) VALUES (:order_id, :car_id, :quantity)";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+                ':order_id' => $orderItem->order_id,
+                ':car_id' => $orderItem->car->car_id,
+                ':quantity' => $orderItem->quantity
+            ]);
+            $this->conn->commit();
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+    }
+
     /**
      * @return array{order:Order,order_items:array<OrderItem>}
      * */
-    public function getOrder(int $id): array
+    public function getOrderById(int $id): array
     {
         $this->conn->beginTransaction();
         try {
@@ -73,12 +107,14 @@ class OrderRepository
     {
         $this->conn->beginTransaction();
         try {
+            // Create a new order
             $orderSql = "INSERT INTO orders (user_id) VALUES (:id)";
             $statement = $this->conn->prepare($orderSql);
             $statement->execute([
                 ':id' => $user_id
             ]);
             $order_id = $this->conn->lastInsertId();
+            // Find the shopping cart
             $sql = "SELECT cart_id FROM carts WHERE user_id=:id";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
@@ -86,13 +122,27 @@ class OrderRepository
             ]);
             $fields = $statement->fetchAll()[0];
             $cart_id = $fields["cart_id"];
+            // Find the cart items
             $cartItemsSql = "SELECT * FROM cart_items WHERE cart_id=:cart_id";
             $statement = $this->conn->prepare($cartItemsSql);
             $statement->execute([
                 ':cart_id' => $cart_id
             ]);
-            $fieldsArray = $statement->fetchAll();
-            foreach ($fieldsArray as $fields) {
+            $cartItemFieldsArray = $statement->fetchAll();
+            foreach ($cartItemFieldsArray as $fields) {
+                $sql = "SELECT price, user_id FROM cars WHERE car_id=:id";
+                $statement = $this->conn->prepare($sql);
+                $statement->execute([
+                    ':id' => $fields["car_id"]
+                ]);
+                $car_fields = $statement->fetchAll()[0];
+                $price = (float)$car_fields["price"] * (int)$fields["quantity"];
+                $sql = "UPDATE users SET balance = (balance + :price) WHERE user_id=:id";
+                $statement = $this->conn->prepare($sql);
+                $statement->execute([
+                    ':id' => $car_fields["user_id"],
+                    ':price' => $price
+                ]);
                 $sql = "INSERT INTO order_items (order_id, car_id, quantity) VALUES (:order_id, :car_id, :quantity)";
                 $statement = $this->conn->prepare($sql);
                 $statement->execute([

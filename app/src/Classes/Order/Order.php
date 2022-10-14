@@ -15,9 +15,11 @@ class Order
     {
         $id = $fieldsArray[0]["order_id"];
         $total = array_reduce($fieldsArray, function($sum, $orderItem) {
-           return $sum += $orderItem["price"];
+           return $sum + ($orderItem["price"] * $orderItem["quantity"]);
         }, 0);
-        $quantity = count($fieldsArray);
+        $quantity = array_reduce($fieldsArray, function ($count, $orderItem) {
+            return $count + $orderItem["quantity"];
+        });
         return new Order((int)$id, $total, $quantity);
     }
 
@@ -27,17 +29,6 @@ class Order
      * */
     public static function manyFromDatabaseFields(array $fieldsArray): array
     {
-        $orders = [];
-        foreach ($fieldsArray as $order_id => $fields) {
-            $price = \array_reduce($fields, function($sum, $orderItem) {
-                return $sum += (float)$orderItem["price"] * (int)$orderItem["quantity"];
-            }, 0);
-            $quantity = \array_reduce($fields, function($sum, $order_item) {
-                return $sum += $order_item["quantity"];
-            }, 0);
-            $order = new Order($order_id, $price, $quantity);
-            $orders[] = $order;
-        }
-        return $orders;
+        return \array_map([Order::class, 'oneFromDatabaseFields'], $fieldsArray);
     }
 }

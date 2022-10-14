@@ -31,8 +31,8 @@
             <ul class="navbar-nav">
                 <div class="ms-3 d-flex align-content-center">
                     {% if logged_in %}
-                        <p class="text-muted" style="margin: auto 0;" id="username">{{ username }}</p>
-                        <p class="text-muted" style="margin: auto 1rem" id="balance">Balance £{{ balance }}</p>
+                        <p class="text-muted" style="margin: auto 0;" id="username">Hello, {{ username }}</p>
+                        <p class="text-muted" style="margin: auto 1rem" id="balance">Balance: £{{ balance }}</p>
                     {% endif %}
                 </div>
                 <li class="nav-item">
@@ -59,15 +59,4 @@
         .then(data => {
             quantityElement.innerHTML = `Cart (${data})`
         })
-    fetch('http://localhost:8080/users/details')
-        .then(result => {
-            return result.json();
-        })
-        .then(data => {
-            const usernameElement = document.getElementById("username");
-            const balanceElement = document.getElementById("balance");
-            balanceElement.innerHTML = `Balance: £${data.balance}`;
-            usernameElement.innerHTML = `Hello, ${data.username}`;
-        })
-        .catch(err => console.log(err));
 </script>
