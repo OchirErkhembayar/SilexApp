@@ -186,12 +186,12 @@ $app->get('/users/details', function () use ($app) {
     return json_encode($user);
 });
 
-$app->get('/users/login', function () use ($app) {
-   return $app['twig']->render('/pages/login.html.twig', []);
-})->bind("login");
+$app->get('/login-page', function () use ($app) {
+    return $app['twig']->render('users/login.html.twig', []);
+});
 
-$app->get('/users/signup', function () use ($app) {
-    return $app['twig']->render('/pages/signup.html.twig', []);
+$app->get('/signup-form', function () use ($app) {
+    return $app['twig']->render('users/signup.html.twig', []);
 });
 
 $app->post('/auth/create-user', function (Request $request) use ($app) {
@@ -199,10 +199,9 @@ $app->post('/auth/create-user', function (Request $request) use ($app) {
     $username = $params->get('username');
     $email = $params->get('email');
     $password = $params->get('password');
-    $authorization = new Authorization($app['app.repository.user']);
-    $user = $authorization->signup($username, $password, $email);
+    $user = $app['app.repository.user']->createUser($username, $email, $password, $app['app.repository.cart']);
     if (!$username || !$password || !$email || !$user) {
-        return $app->redirect($app['url_generator']->generate("signup"));
+        return $app['twig']->render('users/signup.html.twig', []);
     }
     $app['session']->set('user', [
         "id" => $user->user_id,
@@ -223,8 +222,8 @@ $app->post('/auth/authenticate', function(Request $request) use ($app) {
    $password = $params->get('password');
    $authorization = new Authorization($app['app.repository.user']);
    $user = $authorization->login($params->get("username"), $params->get("password"));
-   if (!$user || !$username || !$password) {
-       return $app->redirect($app['url_generator']->generate("login"));
+   if (!$user || empty(trim($username)) || empty(trim($password))) {
+       return $app['twig']->render('users/login.html.twig', []);
    }
     $app['session']->set('user', [
         "id" => $user->user_id,

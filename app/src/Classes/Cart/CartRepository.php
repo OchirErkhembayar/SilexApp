@@ -58,6 +58,21 @@ class CartRepository
         }
     }
 
+    public function createCart(int $user_id): bool
+    {
+        try {
+            $this->conn->beginTransaction();
+            $sql = "INSERT INTO carts VALUES (:user_id)";
+            $statement = $this->conn->prepare($sql);
+            $statement->execute([
+               ':user_id' => $user_id
+            ]);
+            return $this->conn->commit();
+        } catch (Exception $e) {
+            return $this->conn->rollBack();
+        }
+    }
+
     public function addToCart(int $car_id, int $cart_id): bool
     {
         try {

@@ -2,7 +2,9 @@
 
 namespace App\Classes\User;
 
+use App\Classes\Cart\CartRepository;
 use App\Classes\Database\DatabaseConnection;
+use App\Controllers\Cart\CartController;
 use Exception;
 use PDO;
 
@@ -44,26 +46,28 @@ class UserRepository
                 ':password' => $password
             ]);
             $fieldsArray = $statement->fetchAll();
-            if (count($fieldsArray) === 0) {
+            if (count($fieldsArray) < 1) {
                 throw new \InvalidArgumentException("Incorrect login credentials");
             }
             $fields = $fieldsArray[0];
             return User::oneFromDatabaseFields($fields);
         } catch (Exception $e) {
-            return $this->conn->rollBack();
+            $this->conn->rollBack();
+            return false;
         }
     }
 
-    public function createUser(string $username, string $email, string $password): User|bool
+    public function createUser(string $username, string $email, string $password, CartRepository $cartRepository): User|bool
     {
         try {
             $this->conn->beginTransaction();
-            $sql = "INSERT INTO users VALUES (:username, :password, :email)";
+            $sql = "INSERT INTO users VALUES (:username, :password, :email, :balance)";
             $statement = $this->conn->prepare($sql);
             $statement->execute([
                ':username' => $username,
                ':password' => $password,
-               ':email' => $email
+               ':email' => $email,
+               ':balance' => 1000000
             ]);
             $user_id = $this->conn->lastInsertId();
             $sql = "SELECT username, email, balance FROM users where user_id=:id";
@@ -72,11 +76,7 @@ class UserRepository
                 ':id' => $user_id
             ]);
             $params = $statement->fetchAll()[0];
-            $sql = "INSERT INTO carts VALUES (:user_id)";
-            $statement = $this->conn->prepare($sql);
-            $statement->execute([
-                ':user_id' => $user_id
-            ]);
+            $cartRepository->createCart($user_id);
             $this->conn->commit();
             return User::oneFromDatabaseFields($params);
         } catch (Exception $e) {
